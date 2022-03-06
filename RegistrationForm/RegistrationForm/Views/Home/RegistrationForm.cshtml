@@ -1,0 +1,179 @@
+﻿@model RegistrationForm.ViewModel.RegistrationEditViewModel
+@*@{
+        ViewBag.Title = "Registration Form";
+    }
+    <script src="../../Scripts/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="../../Scripts/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="../../Scripts/jquery.validate.unobtrusive.min.js" type="text/javascript"></script>
+    <script type="text/jscript">
+     </script>*@
+
+@section Styles
+{
+    input[type="radio"] {
+        margin-top: -1px;
+        vertical-align: middle;
+    }
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Create a new customer</h1>
+        <p>
+            Create a new customer by entering a customer name and selecting a country and region (if any).
+        </p>
+    </div>
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+<div class="form-horizontal">
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.UserName, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.UserName,
+              new { htmlAttributes = new { @class = "form-control", @autofocus = "autofocus", @required = true } })
+            @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Password,
+              new { htmlAttributes = new { @class = "form-control", @autofocus = "autofocus", @required = true } })
+            @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.ConfirmPassword, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.ConfirmPassword,
+              new { htmlAttributes = new { @class = "form-control", @autofocus = "autofocus", @required = true } })
+            @Html.ValidationMessageFor(model => model.ConfirmPassword, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Address, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Address,
+              new { htmlAttributes = new { @class = "form-control", @autofocus = "autofocus", @required = true } })
+            @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.MobileNo, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-5">
+            @Html.EditorFor(model => model.MobileNo,
+              new { htmlAttributes = new { @class = "form-control", @autofocus = "autofocus", @required = true } })
+            @Html.ValidationMessageFor(model => model.MobileNo, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(x => Model.SelectedCountryId, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-5">
+            @Html.DropDownListFor(model => model.SelectedCountryId,
+            new SelectList(Model.Countries, "Value", "Text"),
+            htmlAttributes: new { @class = "form-control", id = "Country", @required = true })
+            @Html.ValidationMessageFor(x => x.SelectedCountryId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.SelectedCityId, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-5">
+            @Html.DropDownListFor(model => model.SelectedCityId,
+              new SelectList(Model.Cities, "Value", "Text"),
+              htmlAttributes: new { @class = "form-control", @id = "City", @required = true })
+            @Html.ValidationMessageFor(m => m.SelectedCityId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @*@Html.LabelFor(m => m.Gender, htmlAttributes: new { @class = "control-label col-md-2" })*@
+        <div class="col-md-10">
+            @Html.Label("Male")
+            @Html.RadioButtonFor(model => model.Gender, "M")
+             @Html.Label("Female")
+            @Html.RadioButtonFor(model => model.Gender, "F")
+            @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.TermsAccepted, htmlAttributes: new { @class = "control-label col-md-5" })
+        <div class="col-md-5">
+            @Html.CheckBoxFor(m => m.TermsAccepted) I accept the terms & conditions
+            @Html.ValidationMessageFor(m => m.TermsAccepted)
+        </div>
+    </div>
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" formnovalidate="formnovalidate" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+ }
+   
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+            $('#Country').change(function () {
+                var selectedCountry = $("#Country").val();
+                var regionsSelect = $('#City');
+                regionsSelect.empty();
+                if (selectedCountry != null && selectedCountry != '') {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Home/Cities",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("XSRF-TOKEN",
+                                $('input:hidden[name="__RequestVerificationToken"]').val());
+                        },
+                        data: selectedCountry,
+                        contentType: "json; charset=utf-8",
+                        success: function (regions) {
+                            if (regions != null && !jQuery.isEmptyObject(regions)) {
+                                regionsSelect.append($('<option/>', {
+                                    value: null,
+                                    text: ""
+                                }));
+                                $.each(regions, function (index, region) {
+                                    regionsSelect.append("<option value='" + region.value + "'>" + region.text + "</option>");
+                                });
+                            };
+                        },
+                        failure: function (response) {
+                            alert(response);
+                        }
+                    });
+                }
+            });
+
+            jQuery.validator.unobtrusive.adapters.add("checkbox", function (options) {
+                // jQuery Validate equates "checkbox" with "mandatory" for checkbox elements
+                if (options.element.tagName.toUpperCase() == "INPUT" &&  options.element.type.toUpperCase() == "CHECKBOX") {
+                //setValidationValues(options, "required", true);
+                    options.rules["required"] = true;
+                    if (options.message) {
+                    options.messages["required"] = options.message;
+                    }
+                }
+            });
+
+        
+        </script>
+    }
+
+
+
+
